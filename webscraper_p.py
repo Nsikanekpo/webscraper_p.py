@@ -2,18 +2,18 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 from lxml import html
+import openpyxl
+import os
 
 
 url = "https://webscraper.io/test-sites/e-commerce/allinone/computers/laptops"
 
 r = requests.get(url)
 
-#print(r)
 soup = BeautifulSoup(r.text, "lxml")
 
 names = soup.find_all("a", class_ = "title")
 
-#print(names)
 
 product_name = []
 
@@ -22,10 +22,8 @@ for i in names:
     name = i.text
     product_name.append(name)
 
-#print(product_name)
 
 prices = soup.find_all("h4", class_ = "price float-end card-title pull-right")
-#print(prices)
 
 
 prices_list = []
@@ -35,33 +33,23 @@ for i in prices:
     price = i.text
     prices_list.append(price)
 
-#print(prices_list)
 
 desc = soup.find_all("p", class_ = "description card-text")
-#print(desc)
 
 desc_list = []
-
 
 for i in desc:
     desc = i.text
     desc_list.append(desc)
 
-#print(desc_list)
 
 reviews = soup.find_all("p", class_ = "review-count float-end")
-#print(reviews)
-
 
 reviews_list = []
-
 
 for i in reviews:
     rew = i.text
     reviews_list.append(rew)
-
-#print(reviews_list)
-
 
 df = pd.DataFrame({
     "Product Name": product_name,
@@ -70,7 +58,13 @@ df = pd.DataFrame({
     "Number of Reviews" : reviews_list
 })
 
+products_details = 'products_details.xlsx'
+
+df.to_excel(products_details, index=False, engine='openpyxl') 
 #print(df)
 
+print(f"DataFrame successfully saved to {products_details}")
 
-df.to_csv("products_details.csv")
+
+# Open the Excel file automatically (Windows-specific)
+os.system(f'start excel "{products_details}"')
